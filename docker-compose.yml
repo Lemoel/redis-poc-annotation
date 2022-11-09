@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - cache:/data
+  postgres:
+    container_name: postgres-cache-annotation
+    image: debezium/postgres:11-alpine
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres_local
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cache-annotation
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+    cache:
+      driver: local
+    postgres: {}
+
+networks:
+  postgres_local:
+    name: postgres_local
